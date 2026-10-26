@@ -22,12 +22,11 @@ jobs:
 
     - name: Prepare Root Gradle Files
       run: |
-        # Ensure root settings.gradle.kts exists so gradle wrapper works
         if [ ! -f "settings.gradle.kts" ] && [ ! -f "settings.gradle" ]; then
-          echo "include ':app'" > settings.gradle.kts
+          echo 'include(":app")' > settings.gradle.kts
         fi
         if [ ! -f "build.gradle.kts" ] && [ ! -f "build.gradle" ]; then
-          echo "plugins { id('com.android.application') version '8.2.0' apply false }" > build.gradle.kts
+          echo 'plugins { id("com.android.application") version "8.2.0" apply false }' > build.gradle.kts
         fi
 
     - name: Create Gradle wrapper fallback
