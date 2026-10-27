@@ -50,7 +50,7 @@ jobs:
           }
           EOF
 
-          # 3. Root gradle.properties (Fixes AndroidX & Jetifier error)
+          # 3. Root gradle.properties (Fixes AndroidX error)
           cat << 'EOF' > gradle.properties
           android.useAndroidX=true
           android.enableJetifier=true
