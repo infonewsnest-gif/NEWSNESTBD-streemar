@@ -1,6 +1,27 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
     - name: Setup Complete Android & Gradle Environment
       run: |
-        # 1. Root settings.gradle.kts with full repositories (including mavenCentral)
         cat << 'EOF' > settings.gradle.kts
         pluginManagement {
             repositories {
@@ -20,7 +41,6 @@
         include(":app")
         EOF
 
-        # 2. Root build.gradle.kts
         cat << 'EOF' > build.gradle.kts
         plugins {
             id("com.android.application") version "8.2.0" apply false
@@ -28,7 +48,6 @@
         }
         EOF
 
-        # 3. Gradle wrapper setup
         mkdir -p gradle/wrapper
         cat << 'EOF' > gradle/wrapper/gradle-wrapper.properties
         distributionBase=GRADLE_USER_HOME
@@ -38,7 +57,15 @@
         zipStorePath=wrapper/dists
         EOF
 
-        # Download gradlew and wrapper jar directly
         curl -L https://raw.githubusercontent.com/gradle/gradle/v8.2.0/gradlew -o gradlew
         curl -L https://raw.githubusercontent.com/gradle/gradle/v8.2.0/gradle/wrapper/gradle-wrapper.jar -o gradle/wrapper/gradle-wrapper.jar
         chmod +x gradlew
+
+    - name: Build Debug APK
+      run: ./gradlew assembleDebug --stacktrace
+
+    - name: Upload APK artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-debug
+        path: app/build/outputs/apk/debug/app-debug.apk
