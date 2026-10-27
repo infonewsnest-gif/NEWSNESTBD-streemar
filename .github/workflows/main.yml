@@ -22,6 +22,7 @@ jobs:
 
       - name: Setup Complete Android & Gradle Environment
         run: |
+          # 1. Root settings.gradle.kts
           cat << 'EOF' > settings.gradle.kts
           pluginManagement {
               repositories {
@@ -41,6 +42,7 @@ jobs:
           include(":app")
           EOF
 
+          # 2. Root build.gradle.kts
           cat << 'EOF' > build.gradle.kts
           plugins {
               id("com.android.application") version "8.2.0" apply false
@@ -48,6 +50,14 @@ jobs:
           }
           EOF
 
+          # 3. Root gradle.properties (Fixes AndroidX & Jetifier error)
+          cat << 'EOF' > gradle.properties
+          android.useAndroidX=true
+          android.enableJetifier=true
+          org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+          EOF
+
+          # 4. Gradle wrapper setup
           mkdir -p gradle/wrapper
           cat << 'EOF' > gradle/wrapper/gradle-wrapper.properties
           distributionBase=GRADLE_USER_HOME
