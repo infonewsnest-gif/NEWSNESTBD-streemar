@@ -57,7 +57,22 @@ jobs:
           org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
           EOF
 
-          # 4. Gradle wrapper setup
+          # 4. Create missing App Resources (strings.xml & themes.xml) to fix AAPT errors
+          mkdir -p app/src/main/res/values
+          cat << 'EOF' > app/src/main/res/values/strings.xml
+          <resources>
+              <string name="app_name">NEWSNESTBD streemar</string>
+          </resources>
+          EOF
+
+          cat << 'EOF' > app/src/main/res/values/themes.xml
+          <resources>
+              <style name="Theme.StreamcastStudio" parent="Theme.Material3.DayNight.NoActionBar">
+              </style>
+          </resources>
+          EOF
+
+          # 5. Gradle wrapper setup
           mkdir -p gradle/wrapper
           cat << 'EOF' > gradle/wrapper/gradle-wrapper.properties
           distributionBase=GRADLE_USER_HOME
