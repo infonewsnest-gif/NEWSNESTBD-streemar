@@ -1,9 +1,8 @@
-    - name: Setup Complete Android & Gradle Environment
+     name: Setup Complete Android & Gradle Environment
       run: |
         cat << 'EOF' > settings.gradle.kts
         pluginManagement {
-            repositories {
-                google()
+            repositories {                google()
                 mavenCentral()
                 gradlePluginPortal()
             }
