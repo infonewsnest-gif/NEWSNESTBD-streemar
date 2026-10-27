@@ -20,9 +20,9 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Prepare Root Gradle Files
+    - name: Prepare Root Gradle Files & Wrapper
       run: |
-        # Ensure root settings.gradle.kts exists with plugin repositories
+        # 1. Create root settings.gradle.kts
         cat << 'EOF' > settings.gradle.kts
         pluginManagement {
             repositories {
@@ -41,7 +41,7 @@ jobs:
         include(":app")
         EOF
 
-        # Ensure root build.gradle.kts exists with correct plugin declarations
+        # 2. Create root build.gradle.kts
         cat << 'EOF' > build.gradle.kts
         plugins {
             id("com.android.application") version "8.2.0" apply false
@@ -49,22 +49,23 @@ jobs:
         }
         EOF
 
-    - name: Setup Gradle Wrapper with fixed version
-      run: |
-        # Explicitly download and configure Gradle 8.2 distribution
-        npx gradle-wrapper-generator --gradle-version 8.2 || true
+        # 3. Create gradle wrapper directories and files manually to avoid any version conflict
+        mkdir -p gradle/wrapper
+        cat << 'EOF' > gradle/wrapper/gradle-wrapper.properties
+        distributionBase=GRADLE_USER_HOME
+        distributionPath=wrapper/dists
+        distributionUrl=https\://services.gradle.org/distributions/gradle-8.2-bin.zip
+        zipStoreBase=GRADLE_USER_HOME
+        zipStorePath=wrapper/dists
+        EOF
+
+        # 4. Download gradle wrapper jar if gradlew doesn't exist
         if [ ! -f "gradlew" ]; then
-          # Fallback manual wrapper creation pointing to 8.2
-          echo "distributionBase=GRADLE_USER_HOME" > gradle/wrapper/gradle-wrapper.properties
-          echo "distributionPath=wrapper/dists" >> gradle/wrapper/gradle-wrapper.properties
-          echo "distributionUrl=https\://services.gradle.org/distributions/gradle-8.2-bin.zip" >> gradle/wrapper/gradle-wrapper.properties
-          echo "zipStoreBase=GRADLE_USER_HOME" >> gradle/wrapper/gradle-wrapper.properties
-          echo "zipStorePath=wrapper/dists" >> gradle/wrapper/gradle-wrapper.properties
+          wget https://raw.githubusercontent.com/gradle/gradle/v8.2.0/gradle/wrapper/gradle-wrapper.jar -O gradle/wrapper/gradle-wrapper.jar || true
+          wget https://raw.githubusercontent.com/gradle/gradle/v8.2.0/gradlew -O gradlew || true
+          wget https://raw.githubusercontent.com/gradle/gradle/v8.2.0/gradlew.bat -O gradlew.bat || true
         fi
-        # If gradlew still doesn't exist, generate via gradle command with explicit jar download if possible
-        if [ ! -f "gradlew" ]; then
-          gradle wrapper --gradle-version 8.2 --distribution-type bin
-        fi
+        
         chmod +x gradlew
 
     - name: Build Debug APK
