@@ -22,14 +22,12 @@ jobs:
 
     - name: Prepare Root Gradle Files
       run: |
-        # Ensure only settings.gradle.kts exists at root to link the app module
+        # Ensure root settings.gradle.kts exists
         if [ ! -f "settings.gradle.kts" ] && [ ! -f "settings.gradle" ]; then
           echo 'include(":app")' > settings.gradle.kts
         fi
-        # Remove root build.gradle.kts if it causes plugin resolution errors
-        if [ -f "build.gradle.kts" ]; then
-          rm build.gradle.kts
-        fi
+        # Ensure root build.gradle.kts exists with correct plugin version declaration
+        echo 'plugins { id("com.android.application") version "8.2.0" apply false; id("org.jetbrains.kotlin.android") version "1.9.0" apply false }' > build.gradle.kts
 
     - name: Create Gradle wrapper fallback
       run: |
